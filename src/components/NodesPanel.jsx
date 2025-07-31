@@ -1,9 +1,15 @@
 import React from 'react';
 
-const NodesPanel = ({ onAdd }) => (
+const NodesPanel = ({ nodeTypes, onAdd }) => (
   <div className="nodes-panel">
-    <h4>Message</h4>
-    <button onClick={onAdd}>➕ Add Message Node</button>
+    {nodeTypes.map((node) => (
+      <div key={node.type}>
+        <h4>{node.label}</h4>
+        <button onClick={() => onAdd(node.type)}>
+          ➕ Add {node.label} Node
+        </button>
+      </div>
+    ))}
   </div>
 );
 

@@ -37,3 +37,7 @@
   border: none;
   border-radius: 5px;
 }
+.react-flow__node.selected .custom-node {
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 0 2px #4caf5033;
+}

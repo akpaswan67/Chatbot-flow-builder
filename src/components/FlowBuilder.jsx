@@ -13,9 +13,26 @@ import SettingsPanel from './SettingsPanel';
 import validateFlow from '../utils/validateFlow';
 import '../style.css';
 
-const nodeTypes = {
-  textNode: CustomTextNode,
-};
+// Node registry for extensibility
+const NODE_TYPES = [
+  {
+    type: 'textNode',
+    label: 'Message',
+    component: CustomTextNode,
+    create: (position, nodes) => ({
+      id: uuidv4(),
+      type: 'textNode',
+      position,
+      data: { label: 'Send Message', text: '' },
+    }),
+  },
+  // Add more node types here in the future
+];
+
+const nodeTypes = NODE_TYPES.reduce((acc, n) => {
+  acc[n.type] = n.component;
+  return acc;
+}, {});
 
 const FlowBuilder = () => {
   const [nodes, setNodes] = useState([]);
@@ -42,24 +59,26 @@ const FlowBuilder = () => {
 
   const onNodeClick = (event, node) => setSelectedNode(node);
 
-  const addTextNode = () => {
-    const newNode = {
-      id: uuidv4(),
-      type: 'textNode',
-      position: { x: 250, y: 100 + nodes.length * 100 },
-      data: { label: 'Send Message', text: '' },
-    };
-    setNodes((nds) => [...nds, newNode]);
+  // Generic addNode function
+  const addNode = (type) => {
+    const nodeType = NODE_TYPES.find(n => n.type === type);
+    if (!nodeType) return;
+    const position = { x: 250, y: 100 + nodes.length * 100 };
+    setNodes(nds => [...nds, nodeType.create(position, nds)]);
   };
 
   const onTextChange = (text) => {
-    setNodes((nds) =>
-      nds.map((node) =>
+    setNodes((nds) => {
+      const newNodes = nds.map((node) =>
         node.id === selectedNode.id
           ? { ...node, data: { ...node.data, text } }
           : node
-      )
-    );
+      );
+      // Update selectedNode to the latest node object
+      const updatedNode = newNodes.find((node) => node.id === selectedNode.id);
+      setSelectedNode(updatedNode);
+      return newNodes;
+    });
   };
 
   const handleSave = () => {
@@ -95,10 +114,9 @@ const FlowBuilder = () => {
             node={selectedNode}
             onTextChange={onTextChange}
             onBack={() => setSelectedNode(null)}
-            onCancel={() => setSelectedNode(null)}
           />
         ) : (
-          <NodesPanel onAdd={addTextNode} />
+          <NodesPanel nodeTypes={NODE_TYPES} onAdd={addNode} />
         )}
       </div>
     </div>
