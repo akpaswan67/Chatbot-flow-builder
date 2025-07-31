@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Panel for editing the settings of a selected node
 const SettingsPanel = ({ node, onTextChange, onBack }) => {
   // Future extensibility: switch by node.type
   switch (node.type) {

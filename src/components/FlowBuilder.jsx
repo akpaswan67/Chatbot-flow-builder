@@ -13,7 +13,7 @@ import SettingsPanel from './SettingsPanel';
 import validateFlow from '../utils/validateFlow';
 import '../style.css';
 
-// Node registry for extensibility
+// Node type registry for extensibility and custom node definitions
 const NODE_TYPES = [
   {
     type: 'textNode',
@@ -29,26 +29,31 @@ const NODE_TYPES = [
   // Add more node types here in the future
 ];
 
+// Map node types to their React components for React Flow
 const nodeTypes = NODE_TYPES.reduce((acc, n) => {
   acc[n.type] = n.component;
   return acc;
 }, {});
 
+// Main FlowBuilder component for building and editing chatbot flows
 const FlowBuilder = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
 
+  // Handle node changes (drag, select, etc.)
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
   );
 
+  // Handle edge changes (connect, disconnect, etc.)
   const onEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
 
+  // Add a new edge if the source node doesn't already have an outgoing edge
   const onConnect = useCallback(
     (params) => {
       const hasOutgoing = edges.some((e) => e.source === params.source);
@@ -57,9 +62,10 @@ const FlowBuilder = () => {
     [edges]
   );
 
+  // Select a node to edit its settings
   const onNodeClick = (event, node) => setSelectedNode(node);
 
-  // Generic addNode function
+  // Add a new node of the specified type
   const addNode = (type) => {
     const nodeType = NODE_TYPES.find(n => n.type === type);
     if (!nodeType) return;
@@ -67,6 +73,7 @@ const FlowBuilder = () => {
     setNodes(nds => [...nds, nodeType.create(position, nds)]);
   };
 
+  // Update the text of the selected node
   const onTextChange = (text) => {
     setNodes((nds) => {
       const newNodes = nds.map((node) =>
@@ -81,6 +88,7 @@ const FlowBuilder = () => {
     });
   };
 
+  // Validate and save the flow, or alert if invalid
   const handleSave = () => {
     if (!validateFlow(nodes, edges)) {
       alert('Cannot save Flow: More than one unconnected nodes.');

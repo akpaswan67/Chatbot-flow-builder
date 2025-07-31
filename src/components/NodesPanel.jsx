@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Panel for displaying available node types and adding them to the flow
 const NodesPanel = ({ nodeTypes, onAdd }) => (
   <div className="nodes-panel">
     {nodeTypes.map((node) => (
